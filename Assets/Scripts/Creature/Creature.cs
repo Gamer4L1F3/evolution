@@ -275,6 +275,11 @@ namespace Keiwando.Evolution {
 		/// </summary>
 		public float CreatureAwareRaycastDistance(Vector3 origin, Vector3 direction, float maxDistance = Mathf.Infinity) {
 			int layerMask = (1 << SceneContext.GetStaticForegroundLayer()) | (1 << SceneContext.GetDynamicForegroundLayer());
+			// Creature bodies use separate layers from the foreground geometry.
+			layerMask |= (1 << LayerMask.NameToLayer("Creature"))
+				| (1 << LayerMask.NameToLayer("Joint"))
+				| (1 << LayerMask.NameToLayer("VisibleCreature"))
+				| (1 << LayerMask.NameToLayer("VisibleJoint"));
 			int hitCount = PhysicsScene.Raycast(
 				origin, direction, visionRaycastHits, maxDistance, layerMask,
 				QueryTriggerInteraction.UseGlobal
