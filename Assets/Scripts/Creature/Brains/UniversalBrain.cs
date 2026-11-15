@@ -38,14 +38,14 @@ namespace Keiwando.Evolution {
             
             var center = new Vector3(creature.GetXPosition(), creature.GetYPosition());
 
-            var forward = creature.RaycastDistance(center, new Vector3(1, 0), MAX_RAYCAST_DISTANCE);
-            var downForward = creature.RaycastDistance(center, new Vector3(1, -1), MAX_RAYCAST_DISTANCE);
-            var downBack = creature.RaycastDistance(center, new Vector3(-1, -1), MAX_RAYCAST_DISTANCE);
-            var back = creature.RaycastDistance(center, new Vector3(-1, 0), MAX_RAYCAST_DISTANCE);
+            var forward = creature.CreatureAwareRaycastDistance(center, new Vector3(1, 0), MAX_RAYCAST_DISTANCE);
+            var downForward = creature.CreatureAwareRaycastDistance(center, new Vector3(1, -1), MAX_RAYCAST_DISTANCE);
+            var downBack = creature.CreatureAwareRaycastDistance(center, new Vector3(-1, -1), MAX_RAYCAST_DISTANCE);
+            var back = creature.CreatureAwareRaycastDistance(center, new Vector3(-1, 0), MAX_RAYCAST_DISTANCE);
 
             var direction = new Vector3(Mathf.Cos(customRaycastAngle), Mathf.Sin(customRaycastAngle));
             // Debug.DrawRay(center, direction.normalized * MAX_RAYCAST_DISTANCE, Color.magenta);
-            var custom = creature.RaycastDistance(center, direction, MAX_RAYCAST_DISTANCE);
+            var custom = creature.CreatureAwareRaycastDistance(center, direction, MAX_RAYCAST_DISTANCE);
 
             var inputs = Network.Inputs;
             inputs[0] = creature.DistanceFromGround();
