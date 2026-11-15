@@ -19,6 +19,9 @@ namespace Keiwando.Evolution {
 
 	public class Creature : MonoBehaviour {
 
+		// Reused buffer for creature-aware vision raycasts. Avoids allocating an array every physics tick.
+		private readonly RaycastHit[] visionRaycastHits = new RaycastHit[32];
+
 		public List<Joint> joints;
 		public List<Bone> bones;
 		public List<Muscle> muscles;
@@ -263,6 +266,35 @@ namespace Keiwando.Evolution {
 			}
 
 			return 0f;
+		}
+
+		/// <summary>
+		/// Returns the distance to the first visible object, using the sign to identify its type.
+		/// Positive values indicate terrain/obstacles; negative values indicate another creature.
+		/// This creature's own body parts are ignored.
+		/// </summary>
+		public float CreatureAwareRaycastDistance(Vector3 origin, Vector3 direction, float maxDistance = Mathf.Infinity) {
+			int layerMask = (1 << SceneContext.GetStaticForegroundLayer()) | (1 << SceneContext.GetDynamicForegroundLayer());
+			int hitCount = PhysicsScene.Raycast(
+				origin, direction, visionRaycastHits, maxDistance, layerMask,
+				QueryTriggerInteraction.UseGlobal
+			);
+
+			float closestDistance = float.PositiveInfinity;
+			bool closestHitIsCreature = false;
+			for (int i = 0; i < hitCount; i++) {
+				var hit = visionRaycastHits[i];
+				var hitCreature = hit.collider.GetComponentInParent<Creature>();
+				if (hitCreature == this) continue;
+
+				if (hit.distance < closestDistance) {
+					closestDistance = hit.distance;
+					closestHitIsCreature = hitCreature != null;
+				}
+			}
+
+			if (float.IsPositiveInfinity(closestDistance)) return 0f;
+			return closestHitIsCreature ? -closestDistance : closestDistance;
 		}
 
 		public float DistanceFromGround(Vector3 position) {
